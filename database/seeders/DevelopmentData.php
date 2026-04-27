@@ -63,7 +63,7 @@ class DevelopmentData extends Seeder
             DB::table('ab_article')->insert([
                 'id' => (int) $row[0],
                 'ab_name' => $row[1],
-                'ab_price' => (int) $row[2],
+                'ab_price' => $this->convertPrice($row[2]),
                 'ab_description' => $row[3],
                 'ab_creator_id' => (int) $row[4],
                 'ab_createdate' => $this->convertDate($row[5]),
@@ -89,5 +89,13 @@ class DevelopmentData extends Seeder
 
         return $date->format('Y-m-d H:i:s');
 
+    }
+    private function convertPrice(string $value): int
+    {
+        $value = trim($value);
+        $value = str_replace('.', '', $value);
+        $value = str_replace(',', '.', $value);
+
+        return (int) round(((float) $value) * 100);
     }
 }
