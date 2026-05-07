@@ -1,0 +1,21 @@
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+li {
+    padding: 8px;
+    margin: 4px 0;
+    background-color: #eeeeee;
+    border: 1px solid #cccccc;
+    width: 200px;
+}
+
+li ul {
+    margin-top: 5px;
+    margin-left: 20px;
+}
+
+li ul li {
+    background-color: #dddddd;
+}
