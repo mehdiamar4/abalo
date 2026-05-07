@@ -11,7 +11,8 @@
     <input type="text" name="search" value="{{ $search }}">
     <button type="submit">Search</button>
 </form>
-
+<h2>Shopping Cart</h2>
+<ul id="cart"></ul>
 <table border="1" cellpadding="8">
     <tr>
         <th>ID</th>
@@ -19,6 +20,7 @@
         <th>Price</th>
         <th>Description</th>
         <th>Image</th>
+        <th>Add</th>
     </tr>
 
     @foreach ($articles as $article)
@@ -39,10 +41,14 @@
                     <img src="/images/{{ $article->id }}.png" width="100">
                 @endif
             </td>
+            <td>
+                <button onclick="addToCart({{ $article->id }}, '{{ $article->ab_name }}')">+</button>
+            </td>
         </tr>
     @endforeach
 
 </table>
-
+<script src="/js/cookiecheck.js"></script>
+<script src="/js/cart.js"></script>
 </body>
 </html>

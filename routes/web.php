@@ -14,3 +14,7 @@ Route::get('/isloggedin', [App\Http\Controllers\AuthController::class, 'islogged
 use App\Http\Controllers\ArticleController;
 
 Route::get('/articles', [ArticleController::class, 'index']);
+Route::get('/newarticle', function () {
+    return view('newarticle');
+});
+Route::post('/articles', [ArticleController::class, 'store']);
