@@ -61,28 +61,3 @@ function getAnzahlProdukteOfKategorie(data, kategoriename) {
 
     return anzahl;
 }
-
-console.log(getMaxPreis(data));
-console.log(getMinPreisProdukt(data));
-console.log(getPreisSum(data));
-console.log(getGesamtWert(data));
-console.log(getAnzahlProdukteOfKategorie(data, "Spielzeug"));
-console.log(getAnzahlProdukteOfKategorie(data, "Garten"));
-
-document.getElementById("maxPreis").innerText =
-    "Max Preis Produkt: " + getMaxPreis(data);
-
-document.getElementById("minPreis").innerText =
-    "Min Preis Produkt: " + JSON.stringify(getMinPreisProdukt(data));
-
-document.getElementById("preisSumme").innerText =
-    "Preis Summe: " + getPreisSum(data);
-
-document.getElementById("gesamtWert").innerText =
-    "Gesamtwert: " + getGesamtWert(data);
-
-document.getElementById("spielzeugAnzahl").innerText =
-    "Anzahl Spielzeug: " + getAnzahlProdukteOfKategorie(data, "Spielzeug");
-
-document.getElementById("gartenAnzahl").innerText =
-    "Anzahl Garten: " + getAnzahlProdukteOfKategorie(data, "Garten");

@@ -2,11 +2,11 @@
 <html>
 <head>
     <title>Articles</title>
+    <link rel="stylesheet" href="{{ asset('css/menu.css') }}">
 </head>
 <body>
-
+<div id="menu"></div>
 <h1>Articles</h1>
-
 <form method="GET" action="/articles">
     <input type="text" name="search" value="{{ $search }}">
     <button type="submit">Search</button>
@@ -50,5 +50,6 @@
 </table>
 <script src="/js/cookiecheck.js"></script>
 <script src="/js/cart.js"></script>
+<script src="{{ asset('js/menu.js') }}"></script>
 </body>
 </html>
