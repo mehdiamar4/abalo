@@ -34,3 +34,13 @@ curl -X POST http://127.0.0.1:8000/api/articles \
 -H "Accept: application/json" \
 -H "Content-Type: application/json" \
 -d '{"name":"BMW M3","price":50000,"description":"Sportwagen"}'
+
+Aufgabd 11 test:
+curl -X POST http://127.0.0.1:8000/api/shoppingcart \
+-H "Accept: application/json" \
+-H "Content-Type: application/json" \
+-d '{"articleid":1}'
+
+
+curl -X DELETE http://127.0.0.1:8000/api/shoppingcart/1/articles/1 \
+-H "Accept: application/json"
