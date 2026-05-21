@@ -28,3 +28,9 @@ API 2: OpenStreetMap Nominatim API
 
 4. Versionierung:
    Die API besitzt eine dokumentierte API-Version, jedoch nicht deutlich über /api/v1 im Pfad umgesetzt.
+
+Aufgabe 9 test:
+curl -X POST http://127.0.0.1:8000/api/articles \
+-H "Accept: application/json" \
+-H "Content-Type: application/json" \
+-d '{"name":"BMW M3","price":50000,"description":"Sportwagen"}'

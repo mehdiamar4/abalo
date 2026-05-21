@@ -64,5 +64,35 @@ class ArticleController extends Controller
             'articles' => $articles
         ]);
     }
+    public function create_api(Request $request)
+    {
+        $name = $request->input('name');
+        $price = $request->input('price');
+        $description = $request->input('description');
+
+        if ($name == null || trim($name) == '') {
+            return response()->json([
+                'error' => 'Name darf nicht leer sein'
+            ], 400);
+        }
+
+        if ($price == null || $price <= 0) {
+            return response()->json([
+                'error' => 'Preis muss groesser als 0 sein'
+            ], 400);
+        }
+
+        $id = DB::table('ab_article')->insertGetId([
+            'ab_name' => $name,
+            'ab_price' => $price,
+            'ab_description' => $description,
+            'ab_creator_id' => 1,
+            'ab_createdate' => now()
+        ]);
+
+        return response()->json([
+            'id' => $id
+        ]);
+    }
 }
 
