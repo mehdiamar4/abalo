@@ -45,4 +45,24 @@ class ArticleController extends Controller
 
         return redirect('/articles');
     }
+    public function search_api(Request $request)
+    {
+        $search = $request->query('search', '');
+
+        $articles = DB::table('ab_article')
+            ->select(
+                'id',
+                'ab_name as name',
+                'ab_price as price',
+                'ab_description as description'
+            )
+            ->where('ab_name', 'like', '%' . $search . '%')
+            ->get();
+
+        return response()->json([
+            'search' => $search,
+            'articles' => $articles
+        ]);
+    }
 }
+
