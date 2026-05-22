@@ -30,20 +30,23 @@ class ArticleController extends Controller
         $price = $request->input('price');
         $description = $request->input('description');
 
-        // validation (server-side)
         if (!$name || $price <= 0) {
-            return "Error: Name required and price must be > 0";
+            return "Fehler: Name required and price must be > 0";
         }
 
-        DB::table('ab_article')->insert([
-            'ab_name' => $name,
-            'ab_price' => (int)$price,
-            'ab_description' => $description,
-            'ab_creator_id' => 1,
-            'ab_createdate' => now(),
-        ]);
+        try {
+            DB::table('ab_article')->insert([
+                'ab_name' => $name,
+                'ab_price' => (int)$price,
+                'ab_description' => $description,
+                'ab_creator_id' => 1,
+                'ab_createdate' => now(),
+            ]);
+        } catch (\Exception $e) {
+            return "Fehler: " . $e->getMessage();
+        }
 
-        return redirect('/articles');
+        return "Erfolgreich";
     }
     public function search_api(Request $request)
     {

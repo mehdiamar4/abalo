@@ -1,50 +1,59 @@
 "use strict";
 
 window.onload = function () {
-
     let container = document.getElementById("form-container");
 
-    let form = document.createElement("form");
-    form.method = "POST";
-    form.action = "/articles";
-
-    // name
     let nameInput = document.createElement("input");
-    nameInput.name = "name";
     nameInput.placeholder = "Name";
 
-    // price
     let priceInput = document.createElement("input");
-    priceInput.name = "price";
     priceInput.placeholder = "Price";
 
-    // description
     let descInput = document.createElement("input");
-    descInput.name = "description";
     descInput.placeholder = "Description";
 
-    // submit button
     let button = document.createElement("button");
+    button.type = "button";
     button.innerText = "Save";
 
-    // validation
-    button.onclick = function (e) {
+    button.addEventListener("click", function () {
         if (!nameInput.value || priceInput.value <= 0) {
-            alert("Name required and price must be > 0");
-            e.preventDefault();
+            document.getElementById("result").innerText =
+                "Fehler: Name required and price must be > 0";
+            return;
         }
-    };
 
-    form.appendChild(nameInput);
-    form.appendChild(document.createElement("br"));
+        let formData = new FormData();
+        formData.append("name", nameInput.value);
+        formData.append("price", priceInput.value);
+        formData.append("description", descInput.value);
 
-    form.appendChild(priceInput);
-    form.appendChild(document.createElement("br"));
+        let token = document.querySelector('meta[name="csrf-token"]').content;
 
-    form.appendChild(descInput);
-    form.appendChild(document.createElement("br"));
+        fetch("/articles", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "X-CSRF-TOKEN": token,
+                "Accept": "text/plain"
+            },
+            body: formData
+        })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("result").innerText = data;
+            })
+            .catch(err => {
+                document.getElementById("result").innerText =
+                    "Netzwerkfehler: " + err;
+            });
+    });
 
-    form.appendChild(button);
-
-    container.appendChild(form);
+    container.appendChild(nameInput);
+    container.appendChild(document.createElement("br"));
+    container.appendChild(priceInput);
+    container.appendChild(document.createElement("br"));
+    container.appendChild(descInput);
+    container.appendChild(document.createElement("br"));
+    container.appendChild(button);
 };

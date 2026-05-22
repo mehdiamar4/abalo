@@ -1,41 +1,61 @@
-let menue = [
-    { name: "Home" },
-    { name: "Kategorien" },
-    { name: "Verkaufen" },
-    {
-        name: "Unternehmen",
-        unterpunkte: [
-            { name: "Philosophie" },
-            { name: "Karriere" }
-        ]
-    }
-];
+"use strict";
 
-function baueMenue(menueDaten) {
-    let ul = document.createElement("ul");
+const Navigationsmenue = {
 
-    for (let i = 0; i < menueDaten.length; i++) {
-        let li = document.createElement("li");
-        li.textContent = menueDaten[i].name;
+    punkte: [],
 
-        if (menueDaten[i].unterpunkte) {
-            let unterUl = document.createElement("ul");
+    addItem(name, unterpunkte = []) {
+        this.punkte.push({ name: name, unterpunkte: unterpunkte });
+        return this;
+    },
 
-            for (let j = 0; j < menueDaten[i].unterpunkte.length; j++) {
-                let unterLi = document.createElement("li");
-                unterLi.textContent = menueDaten[i].unterpunkte[j].name;
-                unterUl.appendChild(unterLi);
+    addSubItem(elternName, name) {
+        for (let punkt of this.punkte) {
+            if (punkt.name === elternName) {
+                punkt.unterpunkte.push({ name: name });
+                break;
+            }
+        }
+        return this;
+    },
+
+    _baueListe(punkte) {
+        let ul = document.createElement("ul");
+
+        for (let punkt of punkte) {
+            let li = document.createElement("li");
+            li.textContent = punkt.name;
+
+            if (punkt.unterpunkte && punkt.unterpunkte.length > 0) {
+                li.appendChild(this._baueListe(punkt.unterpunkte));
             }
 
-            li.appendChild(unterUl);
+            ul.appendChild(li);
         }
 
-        ul.appendChild(li);
+        return ul;
+    },
+
+    render() {
+        return this._baueListe(this.punkte);
+    },
+
+    mount(containerId) {
+        let container = document.getElementById(containerId);
+        container.innerHTML = "";
+        container.appendChild(this.render());
+        return this;
     }
+};
 
-    return ul;
-}
-
-let menueContainer = document.getElementById("menu");
-let menueHtml = baueMenue(menue);
-menueContainer.appendChild(menueHtml);
+window.addEventListener("load", function () {
+    Navigationsmenue
+        .addItem("Home")
+        .addItem("Kategorien")
+        .addItem("Verkaufen")
+        .addItem("Unternehmen", [
+            { name: "Philosophie" },
+            { name: "Karriere" }
+        ])
+        .mount("menu");
+});
