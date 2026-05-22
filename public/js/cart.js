@@ -11,7 +11,7 @@ function addToCart(id, name) {
     }
 
     cart.push({ id: id, name: name });
-    renderCart();
+    renderCart();//Anzeige aktualisieren
 }
 
 // remove item
