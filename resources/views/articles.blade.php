@@ -3,6 +3,7 @@
 <head>
     <title>Articles</title>
     <link rel="stylesheet" href="{{ asset('css/menu.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
 <div id="menu"></div>
