@@ -8,12 +8,21 @@
 <body>
 <div id="menu"></div>
 <h1>Articles</h1>
+
+{{-- Vue dynamische Suche (Aufgabe 10) --}}
+<div id="article-search"></div>
+
+<hr>
+
+<h2>Alle Artikel</h2>
 <form method="GET" action="/articles">
     <input type="text" name="search" value="{{ $search }}">
     <button type="submit">Search</button>
 </form>
+
 <h2>Shopping Cart</h2>
 <ul id="cart"></ul>
+
 <table border="1" cellpadding="8">
     <tr>
         <th>ID</th>
@@ -49,6 +58,7 @@
     @endforeach
 
 </table>
-@vite(['resources/js/app.js'])
+
+@vite(['resources/js/app.js', 'resources/js/search.js'])
 </body>
 </html>
