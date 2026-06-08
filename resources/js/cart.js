@@ -3,14 +3,14 @@
 // Merkt sich die ID des Warenkorbs über Reloads hinweg
 let shoppingCartId = localStorage.getItem("shoppingCartId") || null;
 
-// CSRF-Token aus dem Meta-Tag (für POST/DELETE nötig, falls vorhanden)
+// CSRF-Token aus dem Meta-Tag
 function getCsrfToken() {
     let meta = document.querySelector('meta[name="csrf-token"]');
     return meta ? meta.content : "";
 }
 
 // Artikel hinzufügen -> POST /api/shoppingcart
-function addToCart(id, name) {
+window.addToCart = function (id, name) {
     let formData = new FormData();
     formData.append("articleid", id);
 
@@ -27,11 +27,11 @@ function addToCart(id, name) {
             if (data.shoppingcartid) {
                 shoppingCartId = data.shoppingcartid;
                 localStorage.setItem("shoppingCartId", shoppingCartId);
-                loadCart(); // Anzeige aus der DB neu laden
+                loadCart();
             }
         })
         .catch(err => console.error("Fehler beim Hinzufuegen:", err));
-}
+};
 
 // Artikel entfernen -> DELETE /api/shoppingcart/{cartId}/articles/{articleId}
 function removeFromCart(id) {
@@ -48,7 +48,7 @@ function removeFromCart(id) {
     })
         .then(response => response.json())
         .then(() => {
-            loadCart(); // Anzeige aus der DB neu laden
+            loadCart();
         })
         .catch(err => console.error("Fehler beim Entfernen:", err));
 }
@@ -60,7 +60,9 @@ function loadCart() {
     }
 
     fetch("/api/shoppingcart/" + shoppingCartId, {
-        headers: { "Accept": "application/json" }
+        headers: {
+            "Accept": "application/json"
+        }
     })
         .then(response => response.json())
         .then(data => {
@@ -69,9 +71,14 @@ function loadCart() {
         .catch(err => console.error("Fehler beim Laden:", err));
 }
 
-// Anzeige aktualisieren (bekommt die Items aus der DB)
+// Anzeige aktualisieren
 function renderCart(items) {
     let cartList = document.getElementById("cart");
+
+    if (!cartList) {
+        return;
+    }
+
     cartList.innerHTML = "";
 
     items.forEach(item => {
@@ -80,6 +87,7 @@ function renderCart(items) {
 
         let button = document.createElement("button");
         button.textContent = "-";
+
         button.addEventListener("click", function () {
             removeFromCart(item.id);
         });
@@ -89,7 +97,7 @@ function renderCart(items) {
     });
 }
 
-// Punkt d: Beim Laden der Seite den letzten Bestand aus der DB holen
+// Beim Laden der Seite Warenkorb laden
 window.addEventListener("load", function () {
     loadCart();
 });

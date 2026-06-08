@@ -15,7 +15,7 @@
 
 <p id="result"></p>
 
-<script src="/js/newarticle.js?v=2"></script>
+@vite(['resources/js/app.js'])
 
 </body>
 </html>

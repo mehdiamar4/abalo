@@ -49,8 +49,6 @@
     @endforeach
 
 </table>
-<script src="/js/cookiecheck.js"></script>
-<script src="/js/cart.js"></script>
-<script src="{{ asset('js/menu.js') }}"></script>
+@vite(['resources/js/app.js'])
 </body>
 </html>
