@@ -1,15 +1,14 @@
 "use strict";
 
-// Merkt sich die ID des Warenkorbs über Reloads hinweg
+import { round } from "mathjs";
+
 let shoppingCartId = localStorage.getItem("shoppingCartId") || null;
 
-// CSRF-Token aus dem Meta-Tag
 function getCsrfToken() {
     let meta = document.querySelector('meta[name="csrf-token"]');
     return meta ? meta.content : "";
 }
 
-// Artikel hinzufügen -> POST /api/shoppingcart
 window.addToCart = function (id, name) {
     let formData = new FormData();
     formData.append("articleid", id);
@@ -33,7 +32,6 @@ window.addToCart = function (id, name) {
         .catch(err => console.error("Fehler beim Hinzufuegen:", err));
 };
 
-// Artikel entfernen -> DELETE /api/shoppingcart/{cartId}/articles/{articleId}
 function removeFromCart(id) {
     if (!shoppingCartId) {
         return;
@@ -53,7 +51,6 @@ function removeFromCart(id) {
         .catch(err => console.error("Fehler beim Entfernen:", err));
 }
 
-// Warenkorb aus der DB laden -> GET /api/shoppingcart/{cartId}
 function loadCart() {
     if (!shoppingCartId) {
         return;
@@ -71,7 +68,6 @@ function loadCart() {
         .catch(err => console.error("Fehler beim Laden:", err));
 }
 
-// Anzeige aktualisieren
 function renderCart(items) {
     let cartList = document.getElementById("cart");
 
@@ -83,7 +79,15 @@ function renderCart(items) {
 
     items.forEach(item => {
         let li = document.createElement("li");
-        li.textContent = item.name + " ";
+
+        let text = item.name;
+
+        if (item.price !== undefined && item.price !== null) {
+            let euroPrice = round(Number(item.price) / 100, 2);
+            text = text + " (" + euroPrice + " €)";
+        }
+
+        li.textContent = text + " ";
 
         let button = document.createElement("button");
         button.textContent = "-";
@@ -97,7 +101,6 @@ function renderCart(items) {
     });
 }
 
-// Beim Laden der Seite Warenkorb laden
 window.addEventListener("load", function () {
     loadCart();
 });

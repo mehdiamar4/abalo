@@ -1,13 +1,21 @@
 "use strict";
 
-window.onload = function () {
+import { round } from "mathjs";
+
+window.addEventListener("load", function () {
     let container = document.getElementById("form-container");
+
+    if (!container) {
+        return;
+    }
 
     let nameInput = document.createElement("input");
     nameInput.placeholder = "Name";
 
     let priceInput = document.createElement("input");
     priceInput.placeholder = "Price";
+    priceInput.type = "number";
+    priceInput.step = "0.01";
 
     let descInput = document.createElement("input");
     descInput.placeholder = "Description";
@@ -17,7 +25,11 @@ window.onload = function () {
     button.innerText = "Save";
 
     button.addEventListener("click", function () {
-        if (!nameInput.value || priceInput.value <= 0) {
+        let roundedPrice = round(Number(priceInput.value), 2);
+
+        console.log("Preis gerundet mit mathjs:", roundedPrice);
+
+        if (!nameInput.value || roundedPrice <= 0) {
             document.getElementById("result").innerText =
                 "Fehler: Name required and price must be > 0";
             return;
@@ -25,7 +37,7 @@ window.onload = function () {
 
         let formData = new FormData();
         formData.append("name", nameInput.value);
-        formData.append("price", priceInput.value);
+        formData.append("price", roundedPrice);
         formData.append("description", descInput.value);
 
         let token = document.querySelector('meta[name="csrf-token"]').content;
@@ -56,4 +68,4 @@ window.onload = function () {
     container.appendChild(descInput);
     container.appendChild(document.createElement("br"));
     container.appendChild(button);
-};
+});
