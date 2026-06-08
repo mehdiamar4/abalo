@@ -12,5 +12,6 @@ class DatabaseSeeder extends Seeder
             AbTestDataSeeder::class,
             DevelopmentData::class,
         ]);
+        $this->call(ArticleHasArticleCategorySeeder::class);
     }
 }
