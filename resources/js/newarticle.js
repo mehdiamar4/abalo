@@ -1,71 +1,67 @@
 "use strict";
 
+import { createApp } from "vue/dist/vue.esm-bundler.js";
 import { round } from "mathjs";
 
 window.addEventListener("load", function () {
-    let container = document.getElementById("form-container");
+    let appElement = document.getElementById("new-article-app");
 
-    if (!container) {
+    if (!appElement) {
         return;
     }
 
-    let nameInput = document.createElement("input");
-    nameInput.placeholder = "Name";
+    createApp({
+        data() {
+            return {
+                name: "",
+                price: "",
+                description: "",
+                message: ""
+            };
+        },
 
-    let priceInput = document.createElement("input");
-    priceInput.placeholder = "Price";
-    priceInput.type = "number";
-    priceInput.step = "0.01";
+        methods: {
+            saveArticle() {
+                let roundedPrice = round(Number(this.price), 2);
 
-    let descInput = document.createElement("input");
-    descInput.placeholder = "Description";
+                if (!this.name || roundedPrice <= 0) {
+                    this.message = "Fehler: Name required and price must be > 0";
+                    return;
+                }
 
-    let button = document.createElement("button");
-    button.type = "button";
-    button.innerText = "Save";
+                let formData = new FormData();
+                formData.append("name", this.name);
+                formData.append("price", roundedPrice);
+                formData.append("description", this.description);
 
-    button.addEventListener("click", function () {
-        let roundedPrice = round(Number(priceInput.value), 2);
+                let token = document.querySelector('meta[name="csrf-token"]').content;
 
-        console.log("Preis gerundet mit mathjs:", roundedPrice);
+                fetch("/api/articles", {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: {
+                        "X-CSRF-TOKEN": token,
+                        "Accept": "application/json"
+                    },
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            this.message = data.error;
+                            return;
+                        }
 
-        if (!nameInput.value || roundedPrice <= 0) {
-            document.getElementById("result").innerText =
-                "Fehler: Name required and price must be > 0";
-            return;
+                        this.message = "Artikel wurde erfolgreich erstellt.";
+
+                        this.name = "";
+                        this.price = "";
+                        this.description = "";
+                    })
+                    .catch(err => {
+                        this.message = "Netzwerkfehler: " + err;
+                    });
+            }
         }
-
-        let formData = new FormData();
-        formData.append("name", nameInput.value);
-        formData.append("price", roundedPrice);
-        formData.append("description", descInput.value);
-
-        let token = document.querySelector('meta[name="csrf-token"]').content;
-
-        fetch("/articles", {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-                "X-CSRF-TOKEN": token,
-                "Accept": "text/plain"
-            },
-            body: formData
-        })
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById("result").innerText = data;
-            })
-            .catch(err => {
-                document.getElementById("result").innerText =
-                    "Netzwerkfehler: " + err;
-            });
-    });
-
-    container.appendChild(nameInput);
-    container.appendChild(document.createElement("br"));
-    container.appendChild(priceInput);
-    container.appendChild(document.createElement("br"));
-    container.appendChild(descInput);
-    container.appendChild(document.createElement("br"));
-    container.appendChild(button);
+    }).mount("#new-article-app");
 });
