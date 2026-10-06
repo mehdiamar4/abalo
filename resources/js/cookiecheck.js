@@ -1,42 +1,39 @@
 "use strict";
 
-// check if cookie exists
 function hasConsent() {
     return document.cookie.includes("cookieAccepted=true");
 }
 
-// set cookie
 function setConsent() {
-    document.cookie = "cookieAccepted=true; path=/; max-age=31536000"; // 1 year
+    document.cookie = "cookieAccepted=true; path=/; max-age=31536000; SameSite=Lax";
 }
 
-// create banner
 function createBanner() {
-    let banner = document.createElement("div");
+    if (!document.body.classList.contains("marketplace-page")) return;
 
-    banner.style.position = "fixed";
-    banner.style.bottom = "0";
-    banner.style.width = "100%";
-    banner.style.background = "#ccc";
-    banner.style.padding = "10px";
-    banner.style.textAlign = "center";
+    const banner = document.createElement("aside");
+    banner.className = "cookie-notice";
+    banner.setAttribute("aria-label", "Cookie-Hinweis");
 
-    banner.innerHTML = `
-        This website uses cookies.
-        <button id="acceptCookies">Accept</button>
-    `;
+    const icon = document.createElement("span");
+    icon.textContent = "";
+    icon.setAttribute("aria-hidden", "true");
 
-    document.body.appendChild(banner);
+    const copy = document.createElement("p");
+    copy.innerHTML = "<strong>Cookie-Hinweis</strong>Abalo nutzt einen Cookie, um deine Auswahl zu speichern.";
 
-    document.getElementById("acceptCookies").addEventListener("click", function () {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "Verstanden";
+    button.addEventListener("click", () => {
         setConsent();
         banner.remove();
     });
+
+    banner.append(icon, copy, button);
+    document.body.appendChild(banner);
 }
 
-// run on page load
-window.onload = function () {
-    if (!hasConsent()) {
-        createBanner();
-    }
-};
+window.addEventListener("DOMContentLoaded", () => {
+    if (!hasConsent()) createBanner();
+});

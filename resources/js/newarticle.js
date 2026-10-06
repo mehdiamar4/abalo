@@ -16,7 +16,10 @@ window.addEventListener("load", function () {
                 name: "",
                 price: "",
                 description: "",
-                message: ""
+                categoryId: "",
+                message: "",
+                success: false,
+                saving: false
             };
         },
 
@@ -24,15 +27,20 @@ window.addEventListener("load", function () {
             saveArticle() {
                 let roundedPrice = round(Number(this.price), 2);
 
-                if (!this.name || roundedPrice <= 0) {
-                    this.message = "Fehler: Name required and price must be > 0";
+                this.success = false;
+
+                if (!this.name || roundedPrice <= 0 || !this.categoryId || !this.description) {
+                    this.message = "Bitte fülle alle Felder vollständig aus.";
                     return;
                 }
+
+                this.saving = true;
 
                 let formData = new FormData();
                 formData.append("name", this.name);
                 formData.append("price", roundedPrice);
                 formData.append("description", this.description);
+                formData.append("category_id", this.categoryId);
 
                 let token = document.querySelector('meta[name="csrf-token"]').content;
 
@@ -45,21 +53,28 @@ window.addEventListener("load", function () {
                     },
                     body: formData
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            this.message = data.error;
-                            return;
+                    .then(async response => {
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.error || "Der Artikel konnte nicht gespeichert werden.");
                         }
-
-                        this.message = "Artikel wurde erfolgreich erstellt.";
+                        return data;
+                    })
+                    .then(() => {
+                        this.message = "Der Artikel wurde veröffentlicht.";
+                        this.success = true;
 
                         this.name = "";
                         this.price = "";
                         this.description = "";
+                        this.categoryId = "";
                     })
                     .catch(err => {
-                        this.message = "Netzwerkfehler: " + err;
+                        this.success = false;
+                        this.message = err.message;
+                    })
+                    .finally(() => {
+                        this.saving = false;
                     });
             }
         }

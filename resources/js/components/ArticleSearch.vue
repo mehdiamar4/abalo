@@ -1,38 +1,39 @@
 <template>
-    <div>
-        <h2>Dynamische Artikelsuche</h2>
-        <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="Mindestens 3 Zeichen eingeben..."
-            style="padding: 6px; width: 300px; font-size: 14px;"
-        />
+    <div class="smart-search">
+        <div class="smart-search-bar">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+            <label class="sr-only" for="smart-search-input">Artikel suchen</label>
+            <input
+                id="smart-search-input"
+                type="search"
+                v-model.trim="searchQuery"
+                placeholder="Was möchtest du entdecken?"
+                autocomplete="off"
+                @keydown.escape="clearResults"
+            >
+            <button type="button" @click="browseResults">Entdecken</button>
+        </div>
 
-        <p v-if="searchQuery.length > 0 && searchQuery.length < 3" style="color: gray;">
-            Bitte mindestens 3 Zeichen eingeben...
+        <p v-if="searchQuery.length > 0 && searchQuery.length < 3" class="search-feedback">
+            Noch {{ 3 - searchQuery.length }} Zeichen bis zur Suche …
         </p>
+        <p v-else-if="loading" class="search-feedback">Wir suchen passende Fundstücke …</p>
+        <p v-else-if="error" class="search-feedback error">{{ error }}</p>
 
-        <p v-if="loading">Suche läuft...</p>
+        <ul v-if="articles.length > 0" class="live-results" aria-label="Suchergebnisse">
+            <li v-for="article in articles" :key="article.id" class="live-result">
+                <img class="result-thumb" :src="imageUrl(article.id)" :alt="article.name" @error="usePngFallback">
+                <div class="result-copy">
+                    <strong>{{ article.name }}</strong>
+                    <span>{{ article.description }}</span>
+                </div>
+                <strong class="result-price">{{ formatPrice(article.price) }}</strong>
+                <button class="result-add" type="button" @click="add(article)" :aria-label="`${article.name} in den Warenkorb`">+</button>
+            </li>
+        </ul>
 
-        <p v-if="error" style="color: red;">{{ error }}</p>
-
-        <table v-if="articles.length > 0" border="1" cellpadding="8" style="margin-top: 10px;">
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Preis</th>
-                <th>Beschreibung</th>
-            </tr>
-            <tr v-for="article in articles" :key="article.id">
-                <td>{{ article.id }}</td>
-                <td>{{ article.name }}</td>
-                <td>{{ article.price }} €</td>
-                <td>{{ article.description }}</td>
-            </tr>
-        </table>
-
-        <p v-if="searchQuery.length >= 3 && !loading && articles.length === 0 && !error">
-            Keine Artikel gefunden.
+        <p v-if="searchQuery.length >= 3 && !loading && articles.length === 0 && !error" class="search-feedback">
+            Keine Treffer – probiere einen allgemeineren Begriff.
         </p>
     </div>
 </template>
@@ -46,33 +47,62 @@ export default {
             articles: [],
             loading: false,
             error: null,
+            requestController: null,
         };
     },
     watch: {
-        searchQuery(newVal) {
-            if (newVal.length >= 3) {
-                this.search(newVal);
+        searchQuery(newValue) {
+            if (newValue.length >= 3) {
+                this.search(newValue);
             } else {
-                this.articles = [];
-                this.error = null;
+                this.clearResults();
             }
-        }
+        },
     },
     methods: {
         async search(query) {
+            if (this.requestController) this.requestController.abort();
+            this.requestController = new AbortController();
             this.loading = true;
             this.error = null;
+
             try {
-                const response = await fetch(`/api/articles?search=${encodeURIComponent(query)}`);
-                if (!response.ok) throw new Error('Fehler beim Laden der Artikel');
+                const response = await fetch(`/api/articles?search=${encodeURIComponent(query)}`, {
+                    signal: this.requestController.signal,
+                    headers: { Accept: 'application/json' },
+                });
+                if (!response.ok) throw new Error('Die Suche ist gerade nicht erreichbar.');
                 const data = await response.json();
-                this.articles = data.articles.slice(0, 5);
-            } catch (err) {
-                this.error = err.message;
+                this.articles = data.articles.slice(0, 4);
+            } catch (error) {
+                if (error.name !== 'AbortError') this.error = error.message;
             } finally {
                 this.loading = false;
             }
-        }
-    }
+        },
+        clearResults() {
+            this.articles = [];
+            this.error = null;
+        },
+        browseResults() {
+            if (!this.searchQuery) {
+                document.querySelector('#discover')?.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            window.location.href = `/?search=${encodeURIComponent(this.searchQuery)}#discover`;
+        },
+        add(article) {
+            if (window.addToCart) window.addToCart(article.id, article.name);
+        },
+        imageUrl(id) {
+            return `/images/${id}.jpg`;
+        },
+        usePngFallback(event) {
+            if (!event.target.src.endsWith('.png')) event.target.src = event.target.src.replace('.jpg', '.png');
+        },
+        formatPrice(price) {
+            return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(Number(price));
+        },
+    },
 };
 </script>

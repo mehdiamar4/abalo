@@ -1,20 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AbTestDataController;
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/testdata', [AbTestDataController::class, 'index']);
-Route::get('/login', [App\Http\Controllers\AuthController::class, 'login'])->name('login');
-Route::get('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
-Route::get('/isloggedin', [App\Http\Controllers\AuthController::class, 'isloggedin'])->name('haslogin');
 use App\Http\Controllers\ArticleController;
 
+Route::get('/', [ArticleController::class, 'index']);
 Route::get('/articles', [ArticleController::class, 'index']);
-Route::get('/newarticle', function () {
-    return view('newarticle');
-});
-Route::post('/articles', [ArticleController::class, 'store']);
+Route::get('/newarticle', [ArticleController::class, 'create']);
